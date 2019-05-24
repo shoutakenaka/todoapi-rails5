@@ -1,6 +1,8 @@
 class TasksController < ApplicationController
+  before_action :authorize
+
   def index
-    tasks = Task.all
+    tasks = user.tasks
     render json: {
       tasks: tasks.map { |o| { id: o.id, title: o.title, priority: o.priority } }
     }
@@ -11,7 +13,7 @@ class TasksController < ApplicationController
   end
   
   def create
-    render json: Task.create!({
+    render json: user.tasks.create!({
       title: params[:title],
       description: params[:description],
       priority: params[:priority]
@@ -19,7 +21,7 @@ class TasksController < ApplicationController
   end
   
   def update
-    task = Task.find(params[:id])
+    task = user.tasks.find(params[:id])
     render json: task.update!({
       title: params[:title],
       description: params[:description],
@@ -28,8 +30,23 @@ class TasksController < ApplicationController
   end
   
   def destroy
-    task = Task.find(params[:id])
+    task = user.tasks.find(params[:id])
     task.destroy!
     render json: {}
+  end
+
+  private
+
+  def authorize
+    token = request.headers[:AUTHORIZATION]
+    current_session = Session.find_by(token: token)
+    @user = current_session&.user
+    if @user.blank?
+      return render json: { code: 'invalid_token' }, status: 403
+    end
+  end
+
+  def user
+    @user
   end
 end
