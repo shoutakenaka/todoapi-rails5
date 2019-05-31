@@ -9,7 +9,7 @@ class TasksController < ApplicationController
   end
   
   def show
-    render json: Task.find(params[:id]).to_json(except: [:until, :created_at, :updated_at])
+    render json: user.tasks.find(params[:id]).to_json(except: [:until, :created_at, :updated_at])
   end
   
   def create
