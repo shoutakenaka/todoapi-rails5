@@ -8,6 +8,6 @@ class SessionsController < ApplicationController
     end
     token = SecureRandom.base64(64)
     user.sessions.create!(token: token)
-    render json: { token: token }
+    render json: { token: token, username: user.username }
   end
 end
